@@ -1,0 +1,35 @@
+
+before_script:
+   - pip3 install requests --user
+
+build_sc:
+  stage: build
+  script:
+    - chmod +x build_sc.py
+    - sudo ./build_sc.py
+  artifacts:
+    paths:
+      - ./*.pkg
+    expire_in: 1 day
+
+notarize_sc:
+  stage: build
+  script: 
+    - chmod +x notarize_sc.sh
+    - ./notarize_sc.sh software_center*
+  artifacts:
+    paths:
+      - ./*.pkg
+    expire_in: 1 day
+
+move_sc:
+  stage: deploy
+  script:
+    - mv software_center* /Users/Shared
+
+cleanup:
+  stage: .post
+  script:
+  - sudo rm -r munki/
+  when: always
+  allow_failure: true
